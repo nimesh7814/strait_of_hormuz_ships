@@ -1,0 +1,236 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": -0.5
+              },
+              {
+                "color": "dark-orange",
+                "value": 0.5
+              },
+              {
+                "color": "dark-yellow",
+                "value": 1.5
+              },
+              {
+                "color": "dark-red",
+                "value": 2.5
+              },
+              {
+                "color": "dark-blue",
+                "value": 3.5
+              },
+              {
+                "color": "dark-purple",
+                "value": 4.5
+              },
+              {
+                "color": "semi-dark-blue",
+                "value": 5.5
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lat"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lon"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 19,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "basemap": {
+          "name": "OpenStreetMap",
+          "type": "default"
+        },
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": true,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "config": {
+              "showLegend": false,
+              "style": {
+                "color": {
+                  "field": "status_idx",
+                  "mode": "thresholds"
+                },
+                "opacity": 0.80,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 8,
+                  "max": 20,
+                  "min": 4,
+                  "mode": "fixed"
+                },
+                "symbol": {
+                  "fixed": "circle",
+                  "mode": "fixed"
+                }
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "A"
+            },
+            "location": {
+              "latitude": "lat",
+              "longitude": "lon",
+              "mode": "coords"
+            },
+            "name": "Ships",
+            "tooltip": true,
+            "type": "markers"
+          }
+        ],
+        "view": {
+          "allLayers": false,
+          "id": "fit",
+          "lastOnly": false,
+          "lat": 25.5,
+          "lon": 55,
+          "padding": 10,
+          "shared": true,
+          "zoom": 7
+        }
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "queryType": "sql",
+          "rawSql": "SELECT\n  ship_id,\n  ship_name,\n  lat,\n  lon,\n  speed,\n  nav_label,\n  multiIf(\n    nav_label = 'Moored', 0,\n    nav_label = 'Underway (engine)', 1,\n    nav_label = 'At anchor', 2,\n    nav_label = 'Restricted manoeuvrability', 3,\n    nav_label = 'Underway (sailing)', 4,\n    nav_label = 'Not under command', 5,\n    6\n  ) AS status_idx\nFROM (\n  SELECT\n    ship_id,\n    argMax(ship_name, ts) AS ship_name,\n    argMax(latitude, ts) AS lat,\n    argMax(longitude, ts) AS lon,\n    argMax(speed, ts) AS speed,\n    argMax(nav_label, ts) AS nav_label\n  FROM vessels_tracking.ais_data\n  WHERE $__timeFilter(ts)\n  GROUP BY ship_id\n)\nORDER BY ship_id ASC",
+          "refId": "A"
+        }
+      ],
+      "title": "Strait of Hormuz Ship Movement",
+      "type": "geomap"
+    },
+    {
+      "datasource": {
+        "type": "grafana",
+        "uid": "-- Grafana --"
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### Nav Label\n\n- <span style=\"color:#2E7D32\">●</span> Moored\n- <span style=\"color:#F57C00\">●</span> Underway (engine)\n- <span style=\"color:#FBC02D\">●</span> At anchor\n- <span style=\"color:#D32F2F\">●</span> Restricted manoeuvrability\n- <span style=\"color:#1976D2\">●</span> Underway (sailing)\n- <span style=\"color:#7B1FA2\">●</span> Not under command\n- <span style=\"color:#616161\">●</span> Unknown",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "title": "Legend",
+      "type": "text"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "ais",
+    "ships",
+    "hormuz"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Hormuz Vessel Tracking v2",
+  "uid": "hormuz-vessel-tracking-v2",
+  "version": 1,
+  "weekStart": ""
+}

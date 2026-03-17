@@ -1,0 +1,4 @@
+websockets
+clickhouse-driver
+python-dotenv
+shapely

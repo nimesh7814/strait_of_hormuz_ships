@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "strait_of_hormuz_boundary",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null, "Name": "Hormuz", "description": null, "timestamp": null, "begin": null, "end": null, "altitudeMode": null, "tessellate": 1, "extrude": 0, "visibility": -1, "drawOrder": null, "icon": null }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 44.173432272156973, 27.481951902513028, 0.0 ], [ 59.264663056796351, 19.73127344073939, 0.0 ], [ 63.524875218599469, 26.452837401161059, 0.0 ], [ 48.93717875300365, 33.141898847783338, 0.0 ], [ 44.173432272156973, 27.481951902513028, 0.0 ] ] ] } }
+]
+}
